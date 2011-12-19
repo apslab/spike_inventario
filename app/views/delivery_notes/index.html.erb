@@ -1,0 +1,27 @@
+<h1>Listing delivery_notes</h1>
+
+<table>
+  <tr>
+    <th>Product</th>
+    <th>Amount</th>
+    <th>Customer</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+
+<% @delivery_notes.each do |delivery_note| %>
+  <tr>
+    <td><%= delivery_note.product_id %></td>
+    <td><%= delivery_note.amount %></td>
+    <td><%= delivery_note.customer_id %></td>
+    <td><%= link_to 'Show', delivery_note %></td>
+    <td><%= link_to 'Edit', edit_delivery_note_path(delivery_note) %></td>
+    <td><%= link_to 'Destroy', delivery_note, confirm: 'Are you sure?', method: :delete %></td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'New Delivery note', new_delivery_note_path %>
