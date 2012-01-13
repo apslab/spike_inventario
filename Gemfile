@@ -19,7 +19,6 @@ end
 gem 'jquery-rails'
 gem 'omniauth'
 gem 'omniauth-oauth2'
-gem 'omniauth-oauth'
 
 # To use ActiveModel has_secure_password
 # gem 'bcrypt-ruby', '~> 3.0.0'
@@ -36,4 +35,5 @@ gem 'omniauth-oauth'
 group :test do
   # Pretty printed test output
   gem 'turn', :require => false
+  gem 'rspec-rails'
 end

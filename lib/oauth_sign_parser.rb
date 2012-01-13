@@ -1,25 +1,5 @@
-class ApplicationController < ActionController::Base
-  protect_from_forgery
-
-  helper_method :current_user
-
-  def login_required
-    if current_user.nil?
-      respond_to do |format|
-        format.html { redirect_to '/auth/aps' }
-        # TODO: Agregar el response code http que corresponde (404??)
-        format.json { render :json => { 'error' => 'Access Denied' }.to_json }
-      end
-    end
-  end
-
-  def current_user
-    return nil unless session[:user_id]
-    # TODO: Mmmm no seria mejor crear un token para recuperar el usuario de sesion?, caso contrario no se podria injectar info?
-    @current_user ||= User.find_by_uid(session[:user_id]['uid'])
-  end
-
-  def user_from_signed_request
+module OauthSignParser
+  def valid?(request)
     auth_header = request.headers['Authorization']
     if auth_header.blank?
       logger.debug 'Authorization header not present'
@@ -48,8 +28,19 @@ class ApplicationController < ActionController::Base
       logger.debug 'Invalid request'
       return nil
     end
-    User.find_by_uid(request.params['current_user_uid'])
+    User.find_by_uid(request.params['current_user_uid'])  
   end
 
+  def parse_headers(request)
+    auth_header = request.headers['Authorization']
+    if auth_header.blank?
+      raise 'Authorization header not present'
+    end
+    auths = {}
+    auth_header.scan(/(\w*)=\"([^,\"]*)\"/){|key,value| auths[key.to_sym] = value }
+    raise 'Missing required parameter' unless REQUIRED_HEADERS.all? { |key| auths.has_key? key }
+    return auths
+  end
 
+  REQUIRED_HEADERS = [:oauth_consumer_key, :oauth_token, :oauth_signature_method, :oauth_timestamp, :oauth_nonce]
 end
