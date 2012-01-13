@@ -1,7 +1,15 @@
 Inventario::Application.routes.draw do
+
   resources :delivery_notes
 
   resources :products
+
+  root :to => 'products#index'
+
+  match '/auth/:provider/callback', :to => 'user_session#create'
+  match '/auth/failure', :to => 'user_session#failure'
+
+  match '/logout', :to => 'user_session#destroy'
 
   # The priority is based upon order of creation:
   # first created -> highest priority.
