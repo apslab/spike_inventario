@@ -37,4 +37,6 @@ group :test, :development do
   gem 'turn', :require => false
   gem 'rspec-rails'
   gem 'shoulda-matchers'
+  gem 'database_cleaner'
+  gem 'factory_girl_rails', '~> 1.2'
 end
