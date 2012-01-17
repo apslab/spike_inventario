@@ -1,10 +1,25 @@
 class ProductsController < ApplicationController
   
-  before_filter :login_required
+  before_filter :login_required, :except => :index
   
   # GET /products
   # GET /products.json
   def index
+    logger.debug("request.method: #{request.method}")
+    logger.debug("request.headers['Host']: #{request.headers['Host']}")
+    logger.debug("request.env['SERVER_PROTOCOL']: #{request.env['SERVER_PROTOCOL']}")
+    ActionDispatch::Request::ENV_METHODS.each do |key|
+      logger.debug("request.env['#{key}']: #{request.env[key]}")
+    end
+    logger.debug("request.env['HTTPS']: #{request.env['HTTPS']}")
+    logger.debug("request.env['rack.url_scheme']: #{request.env['rack.url_scheme']}")
+    logger.debug("------------------------------------------------------------------------------------")
+    request.env.keys.each do |key|
+      logger.debug("request.env['#{key}']: #{request.env[key]}")
+    end
+    logger.debug("------------------------------------------------------------------------------------")
+
+
     @products = Product.all
 
     respond_to do |format|

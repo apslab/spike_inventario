@@ -8,7 +8,9 @@
 </head>
 <body>
   <header>
-    Usuario: <%= current_user.email %> | <%= link_to 'Salir', logout_path %>
+    <% if current_user %>
+      Usuario: <%= current_user.email %> | <%= link_to 'Salir', logout_path %>
+    <% end %>
   </header>
   <%= yield %>
 

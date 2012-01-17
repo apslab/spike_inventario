@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120116213315) do
+ActiveRecord::Schema.define(:version => 20120117124706) do
 
   create_table "client_applications", :force => true do |t|
     t.string   "public_key", :limit => 16
@@ -29,6 +29,14 @@ ActiveRecord::Schema.define(:version => 20120116213315) do
     t.datetime "created_at"
     t.datetime "updated_at"
   end
+
+  create_table "oauth_nonces", :force => true do |t|
+    t.string   "nonce",      :limit => 8
+    t.integer  "timestamp"
+    t.datetime "created_at"
+  end
+
+  add_index "oauth_nonces", ["nonce", "timestamp"], :name => "index_oauth_nonces_on_nonce_and_timestamp", :unique => true
 
   create_table "products", :force => true do |t|
     t.string   "name"
