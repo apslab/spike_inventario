@@ -4,52 +4,62 @@ class ApplicationController < ActionController::Base
   helper_method :current_user
 
   def login_required
-    if current_user.nil?
-      respond_to do |format|
-        format.html { redirect_to '/auth/aps' }
-        # TODO: Agregar el response code http que corresponde (404??)
-        format.json { render :json => { 'error' => 'Access Denied' }.to_json }
-      end
+    # if oauth authorization, check oauth
+    # else current_user
+    if rest_consumption?
+      check_oauth_authorization
+    else
+      check_user_in_session
     end
   end
 
   def current_user
-    return nil unless session[:user_id]
-    # TODO: Mmmm no seria mejor crear un token para recuperar el usuario de sesion?, caso contrario no se podria injectar info?
-    @current_user ||= User.find_by_uid(session[:user_id]['uid'])
+    return nil unless session[:user_uid]
+    @current_user ||= User.find_by_uid(session[:user_uid])
   end
 
-  def user_from_signed_request
-    auth_header = request.headers['Authorization']
-    if auth_header.blank?
-      logger.debug 'Authorization header not present'
-      return nil
-    end
-    auths = {}
-    auth_header.scan(/(\w*)=\"([^,\"]*)\"/){|key,value| auths[key.to_sym] = value }
-    # oauth keys:
-    #   oauth_consumer_key: consumer public key
-    #   oauth_token: Not used
-    #   oauth_signature_method: "HMAC-SHA1", "RSA-SHA1", and "PLAINTEXT"
-    #   oauth_timestamp: epoch (Time.now.to_i.to_s)
-    #   oauth_nonce: check uniqueness
-    #   oauth_version: 1.0
-    unless [:oauth_consumer_key, :oauth_timestamp, :oauth_nonce].all? { |key| auths.has_key? key }
-      logger.debug 'Missing some oauth keys in Authorization header'
-      return nil
-    end
-    time_diff = Time.now - Time.at(auths[:oauth_timestamp].to_i)
-    accepted_diff_time = 2 * 60 # two minutes
-    if time_diff > accepted_diff_time
-      logger.debug 'Expired request signed'
-      return nil
-    end
-    unless valid_sign_request
-      logger.debug 'Invalid request'
-      return nil
-    end
-    User.find_by_uid(request.params['current_user_uid'])
+  private
+
+  def rest_consumption?
+    !request.authorization.nil?
+    #request.headers.has_key? 'Authorization'
   end
 
+  def check_user_in_session
+    logger.debug('Cheking user in session')
+    if current_user.nil?
+      respond_to do |format|
+        format.html { redirect_to '/auth/aps' }
+        # TODO: Agregar el response code http que corresponde (404??)
+        format.json { render :json => { 'error' => 'Access Denied' }.to_json }      
+      end
+    end
+  end
+  
+  def check_oauth_authorization
+    logger.debug('cheking oauth authorization')
+    signature = OAuth::Signature.build(Rack::Request.new(env)) do |request_proxy|
+      logger.debug("Consumer key: #{request_proxy.consumer_key}")      
+      secret = '8740dbce820d968fe4c98a15cf1dd309'
+      client = '761e2621'
+      # return token, secret
+      [nil, secret]
+    end
+
+    logger.debug("Signature class: #{signature}")
+    logger.debug("#signature: #{signature.signature}")
+    logger.debug("#verify: #{signature.verify}")
+    # http://rubydoc.info/github/oauth/oauth-ruby/master/OAuth/RequestProxy/Base
+    logger.debug("signature.request.nonce: #{signature.request.nonce}")
+
+    
+    if signature.verify
+      # TODO: Ver como enviar el usuario en todas las peticiones.
+      #@current_user = User.first
+      session[:user_uid] = User.first.uid
+    else
+     format.json { render :json => { 'error' => 'Access Denied' }.to_json }
+    end
+  end
 
 end

@@ -12,7 +12,8 @@ class UserSessionController < ApplicationController
     else
       user.update_attributes!(omniauth['info'])
     end
-    session[:user_id] = omniauth
+    #session[:user_id] = omniauth
+    session[:user_uid] = user.uid
 
     flash[:notice] = 'Successfully logged in'
     redirect_to root_path
@@ -23,7 +24,7 @@ class UserSessionController < ApplicationController
   end
 
   def destroy
-    session[:user_id] = nil
+    session[:user_uid] = nil
     flash[:notice] = 'You have successfully signed out!'
     redirect_to "#{CUSTOM_PROVIDER_URL}/users/sign_out"
   end
