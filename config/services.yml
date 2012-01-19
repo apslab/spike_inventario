@@ -1,0 +1,6 @@
+development:
+  inventario:
+    public: '761e2621'
+    secret: '8740dbce820d968fe4c98a15cf1dd309'
+test:
+production:

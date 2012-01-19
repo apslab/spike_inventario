@@ -30,8 +30,7 @@ class ApplicationController < ActionController::Base
     if current_user.nil?
       respond_to do |format|
         format.html { redirect_to '/auth/aps' }
-        # TODO: Agregar el response code http que corresponde (404??)
-        format.json { render :json => { 'error' => 'Access Denied' }.to_json }      
+        format.json { render :json => { 'error' => 'Access Denied' }.to_json, :status => :unauthorized }      
       end
     end
   end
@@ -39,13 +38,13 @@ class ApplicationController < ActionController::Base
   def check_oauth_authorization
     logger.debug('cheking oauth authorization')
     signature = OAuth::Signature.build(Rack::Request.new(env)) do |request_proxy|
-      logger.debug("Consumer key: #{request_proxy.consumer_key}")      
-      secret = '8740dbce820d968fe4c98a15cf1dd309'
-      client = '761e2621'
+      logger.debug("Consumer key: #{request_proxy.consumer_key}")
+      secret = OAuth::Service.find(request_proxy.consumer.key).secret
+      #secret = '8740dbce820d968fe4c98a15cf1dd309'
+      #client = '761e2621'
       # return token, secret
       [nil, secret]
     end
-
     logger.debug("Signature class: #{signature}")
     logger.debug("#signature: #{signature.signature}")
     logger.debug("#verify: #{signature.verify}")
@@ -53,12 +52,12 @@ class ApplicationController < ActionController::Base
     logger.debug("signature.request.nonce: #{signature.request.nonce}")
 
     
-    if signature.verify
+    if signature.verify && OauthNonce.remember(signature.request.nonce, signature.request.timestamp)
       # TODO: Ver como enviar el usuario en todas las peticiones.
       #@current_user = User.first
       session[:user_uid] = User.first.uid
     else
-     format.json { render :json => { 'error' => 'Access Denied' }.to_json }
+      render :json => { 'error' => 'Access Denied' }.to_json, :status => :unauthorized
     end
   end
 
