@@ -1,4 +1,6 @@
-class ClientApplication < ActiveRecord::Base
+class Oauth::Application < ActiveRecord::Base
+  set_table_name :oauth_applications
+
   validates :public_key, :presence => true, :uniqueness => true, :length => { :is => 16 }
 
   def self.build_random
