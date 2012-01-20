@@ -5,6 +5,11 @@ SSO + Autenticación de servicios Rest (con OAuth)
 
 ## SSO
 
+1. La autenticación debe ser centralizadas (Single SignOn)
+2. La autorización queda en control de cada aplicación, aunque se puede el componente de autenticación puede gestionar el acceso a las demás aplicaciones (solo a groso modo).
+3. El usuario se crea en el autenticador y se le da acceso para determinada aplicación.
+4. Los roles se agregan o revocan desde cada aplicación.
+
 ## Autenticación entre applicaciones (OAuth 2 legged)
 
 Se requiere que las applicaciones se puedan comunicar entre si, a través de REST.  El objetivo es no generar una API aparte sino poder consumir los servicios que entregan los controllers consumiendo JSON.
