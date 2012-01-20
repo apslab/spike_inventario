@@ -39,7 +39,7 @@ class ApplicationController < ActionController::Base
     logger.debug('cheking oauth authorization')
     signature = OAuth::Signature.build(Rack::Request.new(env)) do |request_proxy|
       logger.debug("Consumer key: #{request_proxy.consumer_key}")
-      secret = OAuth::Service.find(request_proxy.consumer.key).secret
+      secret = OAuth::Application.find_by_public_key(request_proxy.consumer.key).try(:secret)
       #secret = '8740dbce820d968fe4c98a15cf1dd309'
       #client = '761e2621'
       # return token, secret
