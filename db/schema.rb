@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120119232704) do
+ActiveRecord::Schema.define(:version => 20120120180329) do
 
   create_table "delivery_notes", :force => true do |t|
     t.integer  "product_id"
@@ -20,15 +20,6 @@ ActiveRecord::Schema.define(:version => 20120119232704) do
     t.datetime "created_at"
     t.datetime "updated_at"
   end
-
-  create_table "oauth_applications", :force => true do |t|
-    t.string   "public_key", :limit => 16
-    t.string   "secret_key"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
-  add_index "oauth_applications", ["public_key"], :name => "index_client_applications_on_public_key", :unique => true
 
   create_table "oauth_nonces", :force => true do |t|
     t.string   "nonce",      :limit => 8

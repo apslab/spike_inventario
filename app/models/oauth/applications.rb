@@ -13,15 +13,26 @@ class Oauth::Applications
     INFO
   end
 
+  # Genera una credencial de manera aleatoría.
+  # Util para generar credenciales para la carga de los properties
+  def self.random_credential(app_name)
+    Credential.new(app_name, SecureRandom.hex(4), SecureRandom.hex(16))
+  end
   
+  # Busca las credenciales de una aplicación a través de su nombre
+  # return Oauth::Applications::Credential
   def self.by_name(name)
     apps_by_name[name]
   end
-
+  
+  # Busca las credenciales de una aplicación a través de su identificador
+  # return Oauth::Applications::Credential
   def self.by_identifier(identifier)
     apps_by_identifier[identifier]
   end
 
+  # Vuelve a cargar las credenciales leyendo nuevamente el propertie
+  # obtenido de config/services.yml
   def self.reload
     load_properties(false)
   end

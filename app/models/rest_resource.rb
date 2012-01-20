@@ -17,7 +17,7 @@ module RestResource
     end
 
     def resource_name
-      name.tableize
+      const_defined?(:RESOURCE_NAME) ? const_get(:RESOURCE_NAME).tableize : name.tableize
     end
 
     def resource_url
@@ -25,14 +25,19 @@ module RestResource
     end
 
     def base_path
-      @base_path ||= const_defined?(:BASE_RESOURCE_URI) ? const_get(:BASE_RESOURCE_URI) : 'http://127.0.0.1:3000'
+      raise 'You must specify the constant BASE_RESOURCE_URI in the resource class' unless const_defined?(:BASE_RESOURCE_URI)
+      self.const_get(:BASE_RESOURCE_URI)
+    end
+    
+    def provider_name
+      raise 'You must specify the constant PROVIDER_NAME in the resource class' unless const_defined?(:PROVIDER_NAME)
+      const_get(:PROVIDER_NAME)
     end
 
     private
 
     def invoke(action, extend_path = nil)
       url = extend_path.nil? ? resource_url : resource_url + extend_path
-      puts "invoking #{url}"
       add_oauth_authorization
       response = RestClient.send(action, url, :accept => :json) 
       ActiveSupport::JSON.decode(response.body)
@@ -44,19 +49,15 @@ module RestResource
     def add_oauth_authorization
       if RestClient.before_execution_procs.empty?
         RestClient.add_before_execution_proc do |req, params|
+          credential = Oauth::Applications.by_name(provider_name)
+          consumer = OAuth::Consumer.new(credential.identifier, credential.secret)
           oauth_helper = OAuth::Client::Helper.new(req, {:consumer => consumer, :request_uri => params[:url]})
           req["Authorization"] = oauth_helper.header
         end
       end
     end
 
-    def consumer
-      # TODO: Pasar secret and client a properties o bbdd
-      secret = '8740dbce820d968fe4c98a15cf1dd309'
-      client = '761e2621'
-      OAuth::Consumer.new(client, secret)
-    end
-
+    
     def products
       RestClient.reset_before_execution_procs
       consumer = OAuth::Consumer.new(SecureRandom.hex(4), SecureRandom.hex(16))
