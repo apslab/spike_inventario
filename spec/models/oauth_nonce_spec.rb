@@ -1,8 +1,8 @@
 require 'spec_helper'
 
-describe OauthNonce do
+describe Oauth::Nonce do
   before(:all) do
-    @nonce = OauthNonce.remember(SecureRandom.hex(4), Time.now.to_i) 
+    @nonce = Oauth::Nonce.remember(SecureRandom.hex(4), Time.now.to_i) 
   end
 
   subject { @nonce }
@@ -11,7 +11,7 @@ describe OauthNonce do
   it { should respond_to :timestamp }
   it { should be_valid }
   it 'should not allow a second one with the same values' do
-    OauthNonce.remember(@nonce.nonce, @nonce.timestamp).should be_false
+    Oauth::Nonce.remember(@nonce.nonce, @nonce.timestamp).should be_false
   end
 
 end

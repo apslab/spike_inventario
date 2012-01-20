@@ -7,7 +7,7 @@ class Oauth::Nonce < ActiveRecord::Base
   
   # TODO: Ver de que modo se va a limpiar esta tabla periodicamente (varias veces al día)
   def self.remember(nonce, timestamp)
-    oauth_nonce = OauthNonce.create(:nonce => nonce, :timestamp => timestamp)
+    oauth_nonce = create(:nonce => nonce, :timestamp => timestamp)
     return false if oauth_nonce.new_record?
     oauth_nonce
   end
