@@ -42,16 +42,17 @@ class Oauth::Applications
   end
 
   class Credential
-    attr_reader :app_name, :identifier, :secret
+    attr_reader :app_name, :identifier, :secret, :url
 
-    def initialize(app_name, identifier, secret)
+    def initialize(app_name, identifier, secret, url)
       @app_name = app_name
       @identifier = identifier
       @secret = secret
+      @url = url
     end
 
     def to_s
-      "#{app_name}:\n\tIdentifier: #{identifier}\n\tSecret: #{secret}"
+      "#{app_name}:\n\tIdentifier: #{identifier}\n\tSecret: #{secret}\n\tUrl: #{url}"
     end
   end
 
@@ -76,7 +77,7 @@ class Oauth::Applications
     @@loaded = true
     @@apps_by_name, @@apps_by_identifier = {}, {}
     YAML.load_file("#{Rails.root.to_s}/config/services.yml")[Rails.env].each do |app_name, keys|
-      credential = Credential.new(app_name, keys['identifier'], keys['secret'])
+      credential = Credential.new(app_name, keys['identifier'], keys['secret'], keys['url'])
       @@apps_by_name[credential.app_name] = credential
       @@apps_by_identifier[credential.identifier] = credential
     end 

@@ -21,7 +21,6 @@ module Security
   end
 
   def check_user_in_session
-    logger.debug('Cheking user in session')
     if current_user.nil?
       respond_to do |format|
         format.html { redirect_to '/auth/aps' }

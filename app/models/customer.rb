@@ -1,16 +1,10 @@
-class Customer
-  include RestResource
+class Customer < RestResource
 
-  BASE_RESOURCE_URI = 'http://127.0.0.1:3001'
-  PROVIDER_NAME = 'ventas'
+  resource_url 'http://127.0.0.1:3001/customers'
+ # BASE_RESOURCE_URI = 'http://127.0.0.1:3001'
+  #PROVIDER_NAME = 'ventas'
+  provider 'ventas'
   
   attr_accessor :id, :name
-
-  def initialize(properties = {})
-    unless properties.empty?
-      self.id = properties['id'] || properties[:id]
-      self.name = properties['name'] || properties[:name]
-    end
-  end
  
 end
