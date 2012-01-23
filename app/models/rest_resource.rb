@@ -15,7 +15,7 @@ class RestResource
 
   def self.resource_name(resource_name = nil)
     @resource_name = resource_name unless resource_name.blank?
-    @resource_name || name.tableize
+    (@resource_name || name).tableize
   end
 
   def self.resource_url(resource_url = nil)
@@ -35,22 +35,27 @@ class RestResource
   def self.initialize_resource(hash)
     instance = name.constantize.new
     hash.each do |param, value|
-      puts "#{param}: #{value}"
       setter_method = "#{param.to_sym}="
       instance.public_send(setter_method, value) if instance.respond_to?(setter_method) 
     end
     instance
   end
 
-  def self.ws_url(expand_path = nil)
-    url = resource_url.blank? ? provider.url : resource_url
-    url << expand_path unless expand_path.nil?
+  def self.ws_url(extend_path = nil)
+    url = resource_url
+    if url.nil?
+      url = provider.url.clone
+      url << "/" unless url.last == "/"
+      url << resource_name
+    end
+    url << extend_path unless extend_path.nil?
     url
   end
 
   def self.invoke(action, extend_path = nil)
     add_oauth_authorization
-    response = RestClient.send(action, ws_url(extend_path), :accept => :json) 
+    url = ws_url(extend_path)
+    response = RestClient.send(action, url, :accept => :json) 
     ActiveSupport::JSON.decode(response.body)
     #rescue Errno::ECONNREFUSED => ex
     #  logger.error "GROSO ERROR!"
@@ -69,18 +74,5 @@ class RestResource
     end
   end
 
-  
-  def self.products
-    RestClient.reset_before_execution_procs
-    consumer = OAuth::Consumer.new(SecureRandom.hex(4), SecureRandom.hex(16))
-    oauth_params = {:consumer => consumer}
-    RestClient.add_before_execution_proc do |req, params|
-      oauth_helper = OAuth::Client::Helper.new(req, oauth_params.merge(:request_uri => params[:url]))
-      req["Authorization"] = oauth_helper.header # Signs the request
-    end
-    RestClient.get 'http://127.0.0.1:3000/products'
-  end
-
 end
-
 
