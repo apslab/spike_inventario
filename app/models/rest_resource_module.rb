@@ -1,4 +1,4 @@
-module RestResource
+module RestResourceModule
 
   module ClassMethodsRestResource  
     def find(id)
